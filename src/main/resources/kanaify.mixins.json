@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.apple502j.kanaify.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "ServerPlayNetworkHandlerMixin"
+  ],
+  "client": [
+    "MinecraftClientMixin"
+  ],
+  "server": [
+    "MinecraftDedicatedServerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
