@@ -97,6 +97,6 @@ public class Kanaifier {
         return this.kanaProvider.fetch(this, japanized).thenApply((value) -> this.kanaProvider.parse(value)).exceptionally((e) -> {
             LOGGER.warn("API returned unexpected result:", e);
             return "";
-        }).thenApply((text) -> text.isEmpty() ? (japanized.isEmpty() ? kana : japanized) : text);
+        }).thenApply((text) -> text.isEmpty() ? kana : KanaifiyUtil.format(kana, text));
     }
 }

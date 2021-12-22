@@ -25,18 +25,22 @@ public class KanaifiyUtil {
         return text.toString();
     }
 
-    public static Text createChatMessage(Text source, String original, String message) {
+    public static Text createChatMessage(Text source, String formatted) {
         if (source == null) return new LiteralText("");
         if (source instanceof TranslatableText chatText) {
             if (CHAT_TEXT_KEY.equals(chatText.getKey())) {
                 try {
                     StringVisitable username = chatText.getArg(0);
-                    return new TranslatableText(CHAT_TEXT_KEY, username.getString(), String.format(CHAT_FORMAT, message, original));
+                    return new TranslatableText(CHAT_TEXT_KEY, username.getString(), formatted);
                 } catch (TranslationException exc) {
                 }
             }
         }
         LOGGER.warn("createChatMessage received unexpected input " + source);
         return source;
+    }
+
+    public static String format(String original, String message) {
+        return String.format(CHAT_FORMAT, message, original);
     }
 }

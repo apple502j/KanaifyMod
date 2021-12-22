@@ -25,7 +25,7 @@ public class ServerPlayNetworkHandlerMixin {
 		String m = KanaifiyUtil.getChatMessage(serverMessage);
 		CompletableFuture<String> future = Kanaifier.INSTANCE == null ? CompletableFuture.completedFuture(m) : Kanaifier.INSTANCE.convert(m);
 		future.thenAcceptAsync((kanaified) -> {
-			Text kanaText = KanaifiyUtil.createChatMessage(serverMessage, m, kanaified);
+			Text kanaText = KanaifiyUtil.createChatMessage(serverMessage, kanaified);
 			playerManager.broadcast(kanaText, (_player) -> kanaText, MessageType.CHAT, sender);
 		});
 	}

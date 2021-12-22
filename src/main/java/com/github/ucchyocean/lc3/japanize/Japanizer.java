@@ -39,6 +39,7 @@ public class Japanizer {
      */
     private static boolean isNeedToJapanize(String org) {
         return ( org.getBytes().length == org.length()
-                && !org.matches("[ \\uFF61-\\uFF9F]+") );
+                && !org.matches("[ \\uFF61-\\uFF9F]+")
+                && !org.matches("^[^a-zA-Z]$"));
     }
 }
