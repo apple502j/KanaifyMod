@@ -28,8 +28,8 @@
   "accessWidener" : "kanaify.accesswidener",
 
   "depends": {
-    "fabricloader": ">=0.12.12",
-    "minecraft": "1.18.x",
+    "fabricloader": ">=0.14.8",
+    "minecraft": ">=1.19.1",
     "java": ">=17"
   }
 }

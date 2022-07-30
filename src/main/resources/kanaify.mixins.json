@@ -4,13 +4,10 @@
   "package": "io.github.apple502j.kanaify.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ServerPlayNetworkHandlerMixin"
   ],
   "client": [
-    "MinecraftClientMixin"
   ],
   "server": [
-    "MinecraftDedicatedServerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

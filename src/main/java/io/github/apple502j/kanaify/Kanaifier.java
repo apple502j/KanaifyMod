@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.Objects;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.common.io.CharStreams;
 import org.apache.logging.log4j.LogManager;
@@ -18,36 +17,16 @@ import com.github.ucchyocean.lc3.japanize.Japanizer;
 import com.github.ucchyocean.lc3.japanize.provider.Provider;
 import com.github.ucchyocean.lc3.japanize.provider.Providers;
 
-import net.minecraft.util.thread.TaskExecutor;
+import net.minecraft.util.Util;
 
 public class Kanaifier {
     public static final Logger LOGGER = LogManager.getLogger("kanaifier");
-    private static final AtomicInteger NEXT_WORKER_ID = new AtomicInteger(1);
-    private static final int MAX_THREADS = 10;
-    private static final ThreadFactory THREAD_FACTORY;
-
-    private ExecutorService executorService;
-    private Executor taskExecutor;
-    private Provider kanaProvider;
+    private final Provider kanaProvider;
     public static Kanaifier INSTANCE = null;
-
-    static {
-        THREAD_FACTORY = (runnable -> {
-                Thread thread = new Thread(runnable);
-                thread.setName("KanaifyThread" + NEXT_WORKER_ID.getAndIncrement());
-                return thread;
-        });
-    }
 
     public Kanaifier() {
         this.kanaProvider = Providers.get();
-        this.executorService = Executors.newFixedThreadPool(MAX_THREADS, THREAD_FACTORY);
-        this.taskExecutor = TaskExecutor.create(this.executorService, "Kanaifier executor")::send;
         LOGGER.info("Using " + this.kanaProvider.getName() + " kana provider");
-    }
-
-    public void close() {
-        this.executorService.shutdownNow();
     }
 
     public CompletableFuture<String> performGet(String url) {
@@ -84,7 +63,7 @@ public class Kanaifier {
                 }
             }
             return value;
-        }, this.taskExecutor);
+        }, Util.getIoWorkerExecutor());
         return future.exceptionally((e) -> {
             LOGGER.warn("Connection to \"" + url + "\" failed:", e);
             return "";
@@ -97,6 +76,6 @@ public class Kanaifier {
         return this.kanaProvider.fetch(this, japanized).thenApply((value) -> this.kanaProvider.parse(value)).exceptionally((e) -> {
             LOGGER.warn("API returned unexpected result:", e);
             return "";
-        }).thenApply((text) -> text.isEmpty() ? kana : KanaifiyUtil.format(kana, text));
+        });
     }
 }
