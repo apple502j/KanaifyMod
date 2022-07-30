@@ -1,73 +1,75 @@
 package io.github.apple502j.kanaify;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.time.Duration;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import com.github.ucchyocean.lc3.japanize.Japanizer;
 import com.github.ucchyocean.lc3.japanize.provider.Provider;
 import com.github.ucchyocean.lc3.japanize.provider.Providers;
-import com.google.common.io.CharStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.minecraft.util.Util;
 
 public final class Kanaifier {
     public static final Logger LOGGER = LoggerFactory.getLogger("kanaifier");
     private final Provider kanaProvider;
+    private final HttpClient client;
     public static Kanaifier INSTANCE = new Kanaifier();
 
     private Kanaifier() {
         this.kanaProvider = Providers.get();
+        this.client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10L))
+                .build();
         LOGGER.info("Using {} kana provider", this.kanaProvider.getName());
     }
 
     public CompletableFuture<String> performGet(String url) {
-        return this.request("GET", url, (handler) -> {}, (handler) -> {});
+        return this.request("GET", URI.create(url), HttpRequest.BodyPublishers.noBody(), Map.of());
     }
 
-    public CompletableFuture<String> request(String method, String url, Consumer<HttpURLConnection> handler, Consumer<HttpURLConnection> poster) {
-        Objects.requireNonNull(url);
-        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+    public CompletableFuture<String> request(String method, URI uri, HttpRequest.BodyPublisher publisher, Map<String, String> headers) {
+        HttpRequest.Builder request = HttpRequest
+                .newBuilder(uri)
+                .method(method, publisher)
+                .timeout(Duration.ofSeconds(20L));
 
-            HttpURLConnection urlconn = null;
-            BufferedReader reader = null;
-            String value = "";
-            try {
-                URL dest = new URL(url);
-                urlconn = (HttpURLConnection) dest.openConnection();
-                urlconn.setRequestMethod(method);
-                urlconn.setInstanceFollowRedirects(false);
-                handler.accept(urlconn);
-                urlconn.connect();
-                poster.accept(urlconn);
-                reader = new BufferedReader(
-                        new InputStreamReader(urlconn.getInputStream(), StandardCharsets.UTF_8));
-                value = CharStreams.toString(reader);
-            } catch (Exception e) {
-                LOGGER.warn("Connection to \"" + url + "\" failed:", e);
-                return "";
-            } finally {
-                if (urlconn != null) urlconn.disconnect();
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (IOException ioexc) {}
-                }
-            }
-            return value;
-        }, Util.getIoWorkerExecutor());
-        return future.exceptionally((e) -> {
-            LOGGER.warn("Connection to \"" + url + "\" failed:", e);
-            return "";
-        });
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            request.header(entry.getKey(), entry.getValue());
+        }
+
+        return client.sendAsync(request.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
+                .thenApplyAsync((resp) -> {
+                    if (resp.statusCode() < 200 || resp.statusCode() >= 300) {
+                        throw new UncheckedIOException(new IOException(String.format(Locale.ROOT, "Page returned code %d", resp.statusCode())));
+                    }
+
+                    return resp.body();
+                })
+                .handle((res, exc) -> {
+                    if (exc instanceof UncheckedIOException) {
+                        exc = exc.getCause();
+                    }
+
+                    if (exc instanceof IOException ioExc) {
+                        LOGGER.warn("Request failed to {}", uri);
+                        LOGGER.warn("Stack trace: ", exc);
+                        throw new UncheckedIOException("Request failed", ioExc);
+                    } else if (exc != null) {
+                        LOGGER.error("Uncaught exception", exc);
+                        throw new RuntimeException("Uncaught exception while processing", exc);
+                    }
+
+                    return res;
+                });
     }
 
     public CompletableFuture<String> convert(String kana) {
