@@ -53,31 +53,11 @@ public final class Kanaifier {
                     }
 
                     return resp.body();
-                })
-                .handle((res, exc) -> {
-                    if (exc instanceof UncheckedIOException) {
-                        exc = exc.getCause();
-                    }
-
-                    if (exc instanceof IOException ioExc) {
-                        LOGGER.warn("Request failed to {}", uri);
-                        LOGGER.warn("Stack trace: ", exc);
-                        throw new UncheckedIOException("Request failed", ioExc);
-                    } else if (exc != null) {
-                        LOGGER.error("Uncaught exception", exc);
-                        throw new RuntimeException("Uncaught exception while processing", exc);
-                    }
-
-                    return res;
                 });
     }
 
-    public CompletableFuture<String> convert(String kana) {
-        String japanized = Japanizer.japanize(kana);
-        if (japanized.isEmpty()) return CompletableFuture.completedFuture(kana);
-        return this.kanaProvider.fetch(this, japanized).thenApply((value) -> this.kanaProvider.parse(value)).exceptionally((e) -> {
-            LOGGER.warn("API returned unexpected result:", e);
-            return "";
-        });
+    public CompletableFuture<String> convert(String romaji) {
+        String japanized = Japanizer.japanize(romaji);
+        return this.kanaProvider.fetch(this, japanized);
     }
 }

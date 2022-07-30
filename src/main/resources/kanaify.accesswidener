@@ -1,4 +1,0 @@
-accessWidener	v1	named
-
-# Expose TranslatableText#getArg
-accessible  method  net/minecraft/text/TranslatableText getArg (I)Lnet/minecraft/text/StringVisitable;

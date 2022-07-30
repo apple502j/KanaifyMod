@@ -17,16 +17,8 @@ public class Japanizer {
      */
     public static String japanize(String keywordLocked) {
 
-        // 変換不要なら空文字列を返す
-        if (  !isNeedToJapanize(keywordLocked) ) {
-            return "";
-        }
-
         // カナ変換
         String japanized = YukiKanaConverter.fixBrackets(YukiKanaConverter.conv(keywordLocked));
-
-        // IME変換
-        // japanized = IMEConverter.convByGoogleIME(japanized);
 
         // 返す
         return japanized.trim();
@@ -37,7 +29,7 @@ public class Japanizer {
      * @param org
      * @return
      */
-    private static boolean isNeedToJapanize(String org) {
+    public static boolean needsJapanize(String org) {
         return ( org.getBytes().length == org.length()
                 && !org.matches("[ \\uFF61-\\uFF9F]+")
                 && !org.matches("^[^a-zA-Z]$"));

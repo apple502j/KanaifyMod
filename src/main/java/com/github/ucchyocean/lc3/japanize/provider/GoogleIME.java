@@ -11,6 +11,7 @@ import io.github.apple502j.kanaify.Kanaifier;
 
 public class GoogleIME implements Provider {
     public static Provider INSTANCE = new GoogleIME();
+    private static final Gson GSON = new Gson();
     private static final String URL =
             "https://www.google.com/transliterate?langpair=ja-Hira|ja&text=";
 
@@ -20,7 +21,7 @@ public class GoogleIME implements Provider {
 
     public String parse(String value) {
         StringBuilder result = new StringBuilder();
-        for ( JsonElement response : new Gson().fromJson(value, JsonArray.class) ) {
+        for ( JsonElement response : GSON.fromJson(value, JsonArray.class) ) {
             result.append(response.getAsJsonArray().get(1).getAsJsonArray().get(0).getAsString());
         }
         return result.toString();
