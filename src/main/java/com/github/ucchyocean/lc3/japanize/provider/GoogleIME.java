@@ -13,7 +13,7 @@ public class GoogleIME implements Provider {
     public static Provider INSTANCE = new GoogleIME();
     private static final Gson GSON = new Gson();
     private static final String URL =
-            "https://www.google.com/transliterate?langpair=ja-Hira|ja&text=";
+            "https://www.google.com/transliterate?langpair=ja-Hira%7Cja&text=";
 
     public CompletableFuture<String> fetch(Kanaifier kanaifier, String message) {
         return kanaifier.performGet(URL + URLEncoder.encode(message , StandardCharsets.UTF_8));
