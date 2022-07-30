@@ -58,6 +58,6 @@ public final class Kanaifier {
 
     public CompletableFuture<String> convert(String romaji) {
         String japanized = Japanizer.japanize(romaji);
-        return this.kanaProvider.fetch(this, japanized);
+        return this.kanaProvider.fetch(this, japanized).thenApply(this.kanaProvider::parse);
     }
 }
