@@ -7,7 +7,6 @@ import java.util.concurrent.CompletableFuture;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-
 import io.github.apple502j.kanaify.Kanaifier;
 
 public class GoogleIME implements Provider {

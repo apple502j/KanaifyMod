@@ -9,10 +9,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.github.apple502j.kanaify.Kanaifier;
 
 import net.minecraft.util.Util;
-
-import io.github.apple502j.kanaify.Kanaifier;
 
 public class YahooKanaAPI implements Provider {
     public static Provider INSTANCE = new YahooKanaAPI();
