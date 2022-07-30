@@ -14,19 +14,19 @@ import com.github.ucchyocean.lc3.japanize.Japanizer;
 import com.github.ucchyocean.lc3.japanize.provider.Provider;
 import com.github.ucchyocean.lc3.japanize.provider.Providers;
 import com.google.common.io.CharStreams;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.minecraft.util.Util;
 
-public class Kanaifier {
-    public static final Logger LOGGER = LogManager.getLogger("kanaifier");
+public final class Kanaifier {
+    public static final Logger LOGGER = LoggerFactory.getLogger("kanaifier");
     private final Provider kanaProvider;
-    public static Kanaifier INSTANCE = null;
+    public static Kanaifier INSTANCE = new Kanaifier();
 
-    public Kanaifier() {
+    private Kanaifier() {
         this.kanaProvider = Providers.get();
-        LOGGER.info("Using " + this.kanaProvider.getName() + " kana provider");
+        LOGGER.info("Using {} kana provider", this.kanaProvider.getName());
     }
 
     public CompletableFuture<String> performGet(String url) {

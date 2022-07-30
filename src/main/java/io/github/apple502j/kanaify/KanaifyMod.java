@@ -1,16 +1,19 @@
 package io.github.apple502j.kanaify;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.fabricmc.api.ModInitializer;
 
 public class KanaifyMod implements ModInitializer {
-	public static final Logger LOGGER = LogManager.getLogger("kanaify");
+	public static final Logger LOGGER = LoggerFactory.getLogger("kanaify");
 
 	@Override
 	public void onInitialize() {
-		Kanaifier.INSTANCE = new Kanaifier();
+		// Load class
+		Objects.requireNonNull(Kanaifier.INSTANCE);
 		LOGGER.info("Kanaifier initialized.");
 	}
 }
