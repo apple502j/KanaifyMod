@@ -18,6 +18,8 @@ import com.github.ucchyocean.lc3.japanize.provider.Providers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.minecraft.util.Util;
+
 public final class Kanaifier {
     public static final Logger LOGGER = LoggerFactory.getLogger("kanaifier");
     private final Provider kanaProvider;
@@ -28,6 +30,7 @@ public final class Kanaifier {
         this.kanaProvider = Providers.get();
         this.client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10L))
+                .executor(Util.getMainWorkerExecutor())
                 .build();
         LOGGER.info("Using {} kana provider", this.kanaProvider.getName());
     }
